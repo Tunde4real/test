@@ -40,12 +40,17 @@ exports.handler = async (event) => {
             });
 
             // console.log(data);
-            assert (appSecret==data['AppSecret'] && (data['Limit']>0 || data['Email']=='master'));
+            if (!(assert (appSecret==data['AppSecret'] && (data['Limit']>0 || data['Email']=='master')))) {
+                return {
+                    statusCode: 100,
+                    body: JSON.stringify('Limit exceeded or incorrect app keys')
+                }
+            }
         });
     } catch (error) {
         return {
-            statusCode: 400,
-            body: JSON.stringify('Limit exceeded or incorrect app keys'),
+            statusCode: 500,
+            body: JSON.stringify('An errro occured.'),
         };
     }
     
