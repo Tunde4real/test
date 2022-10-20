@@ -18,37 +18,37 @@ exports.handler = async (event) => {
     var appKey = headers['app_key'];
     var appSecret = headers['app_secret'];
     var sqlFetchQuery = `SELECT * FROM AppKeys WHERE AppKey='${appKey}'`;
-    
-    connection.connect(function(err, promise) {
-        if (err) {
-            return {
-                statusCode: 500,
-                body: JSON.stringify('An error occured!'),
-            };
-        };
-        
-        var data = connection.query(sqlFetchQuery, function (err, result, fields) {
-            if (err){
+
+    try {
+        connection.connect(function(err) {
+            if (err) {
                 return {
                     statusCode: 500,
-                    body: JSON.stringify('An error occured'),
+                    body: JSON.stringify('An error occured!'),
                 };
-            }
-            console.log(result[0])
-            return result[0]
-        });
-        
-        try{
+            };
+            
+            var data = connection.query(sqlFetchQuery, function (err, result, fields) {
+                if (err){
+                    return {
+                        statusCode: 500,
+                        body: JSON.stringify('An error occured'),
+                    };
+                }
+                console.log(result[0])
+                return result[0]
+            });
+
             // console.log(data);
             assert (appSecret==data['AppSecret'] && (data['Limit']>0 || data['Email']=='master'));
-        }
-        catch (error){
-            return {
-                statusCode: 400,
-                body: JSON.stringify('Limit exceeded or incorrect app keys'),
-            };
+        });
+    } catch (error) {
+        return {
+            statusCode: 400,
+            body: JSON.stringify('Limit exceeded or incorrect app keys'),
         };
-    });
+    }
+    
         
     var params = event.rawQueryString;
     var query = '';
